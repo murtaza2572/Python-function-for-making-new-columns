@@ -1,0 +1,53 @@
+# Import Libraries
+import pandas as pd
+
+# Defining Function
+def col_add(df):
+  
+  # Checking for Date Columns and coverting there Dtype
+  for col in df.columns:
+    if df[col].dtype == 'object':
+        try:
+            df[col] = pd.to_datetime(df[col])
+            
+            print("done")
+        except ValueError:
+            pass
+        except TypeError:
+            pass
+  
+  # Adding another Date column        
+  df['date'] = pd.date_range(start = "1/1/2000", periods = len(df), freq = "D")
+  
+  # Localizing timezone of both DatetimeArray before subtraction
+  df['crawl_timestamp'] = df['crawl_timestamp'].dt.tz_localize(None)
+  
+  # Seperating Datetime Columns
+  df1  = pd.DataFrame()
+  for col in df.columns:
+    if df[col].dtype == '<M8[ns]':
+        x = df[col]
+        if df1 is 'NULL':
+          df1 = x.to_frame()
+        else:
+            y = x.to_frame()
+            df1 = pd.concat([df1,y], axis = 1)
+  
+  # Subtracting Dates to create new Columns
+  cols = df1.columns.values
+  for i in cols:
+    for j in cols:
+        if i == j:
+            break
+        else:
+            dt = df[i] - df[j]
+            df1[ str(i) + ' - ' + str(j)] = dt 
+
+ 
+
+    print(df1)
+# importing Dataframe  
+df = pd.read_csv("/content/order.csv")
+
+# Function Call
+col_add(df)
